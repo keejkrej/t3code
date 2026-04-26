@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "T3 Code Mobile",
+    "slug": "t3code-mobile",
+    "scheme": "t3code-mobile",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "platforms": ["ios"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.t3tools.mobile"
+    }
+  }
+}
