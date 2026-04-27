@@ -4,11 +4,11 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import WebView, { type WebViewMessageEvent } from "react-native-webview";
 
 import { createInjectedMobileBridgeScript, handleMobileBridgeMessage } from "./src/mobileBridge";
-import { prepareBundledWebUi } from "./src/webBundle";
+import { type BundledWebUiLocation, prepareBundledWebUi } from "./src/webBundle";
 
 export default function App() {
   const webViewRef = useRef<WebView>(null);
-  const [webUri, setWebUri] = useState<string | null>(null);
+  const [webLocation, setWebLocation] = useState<BundledWebUiLocation | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const injectedBridgeScript = useMemo(() => createInjectedMobileBridgeScript(), []);
 
@@ -23,7 +23,7 @@ export default function App() {
     void prepareBundledWebUi()
       .then((uri) => {
         if (!cancelled) {
-          setWebUri(uri);
+          setWebLocation(uri);
         }
       })
       .catch((error: unknown) => {
@@ -50,7 +50,7 @@ export default function App() {
     );
   }
 
-  if (!webUri) {
+  if (!webLocation) {
     return createElement(View, { style: styles.centered }, createElement(ActivityIndicator));
   }
 
@@ -59,11 +59,14 @@ export default function App() {
     { style: styles.root },
     createElement(WebView, {
       ref: webViewRef,
-      source: { uri: webUri },
+      source: { uri: webLocation.indexUri },
       style: styles.webView,
       originWhitelist: ["*"],
       javaScriptEnabled: true,
       domStorageEnabled: true,
+      allowFileAccess: true,
+      allowFileAccessFromFileURLs: true,
+      allowingReadAccessToURL: webLocation.rootUri,
       allowsBackForwardNavigationGestures: true,
       injectedJavaScriptBeforeContentLoaded: injectedBridgeScript,
       onMessage: handleMessage,

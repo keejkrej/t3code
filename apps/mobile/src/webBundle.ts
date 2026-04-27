@@ -5,6 +5,11 @@ import { WEB_BUNDLE_ASSETS, WEB_BUNDLE_VERSION } from "./generated/webBundleAsse
 
 const WEB_BUNDLE_ROOT = new Directory(Paths.document, "t3-web", WEB_BUNDLE_VERSION);
 
+export type BundledWebUiLocation = {
+  indexUri: string;
+  rootUri: string;
+};
+
 async function copyAsset(relativePath: string, moduleId: number): Promise<void> {
   const pathParts = relativePath.split("/").filter(Boolean);
   const destination = new File(WEB_BUNDLE_ROOT, ...pathParts);
@@ -26,7 +31,7 @@ async function copyAsset(relativePath: string, moduleId: number): Promise<void> 
   }
 }
 
-export async function prepareBundledWebUi(): Promise<string> {
+export async function prepareBundledWebUi(): Promise<BundledWebUiLocation> {
   WEB_BUNDLE_ROOT.create({ idempotent: true, intermediates: true });
   await Promise.all(
     Object.entries(WEB_BUNDLE_ASSETS).map(([relativePath, moduleId]) =>
@@ -34,5 +39,8 @@ export async function prepareBundledWebUi(): Promise<string> {
     ),
   );
 
-  return new File(WEB_BUNDLE_ROOT, "index.html").uri;
+  return {
+    indexUri: new File(WEB_BUNDLE_ROOT, "index.html").uri,
+    rootUri: WEB_BUNDLE_ROOT.uri,
+  };
 }
