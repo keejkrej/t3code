@@ -2,11 +2,12 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
       "@t3tools/contracts": ["../../packages/contracts/src"],
       "@t3tools/client-runtime": ["../../packages/client-runtime/src"]
     }
   },
-  "include": ["App.tsx", "src/**/*.ts", "src/**/*.tsx"]
+  "include": ["index.ts", "App.tsx", "src/**/*.ts", "src/**/*.tsx"]
 }

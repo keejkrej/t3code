@@ -19,12 +19,18 @@ export function normalizeBaseUrl(value: string, protocol: "http" | "ws"): string
     throw new Error("Connection URL cannot be empty.");
   }
 
-  const prefixed = /^https?:\/\//i.test(trimmed) || /^wss?:\/\//i.test(trimmed)
-    ? trimmed
-    : `${protocol}://${trimmed}`;
+  const prefixed =
+    /^https?:\/\//i.test(trimmed) || /^wss?:\/\//i.test(trimmed)
+      ? trimmed
+      : `${protocol}://${trimmed}`;
 
   const url = new URL(prefixed);
-  if (url.protocol !== "http:" && url.protocol !== "https:" && url.protocol !== "ws:" && url.protocol !== "wss:") {
+  if (
+    url.protocol !== "http:" &&
+    url.protocol !== "https:" &&
+    url.protocol !== "ws:" &&
+    url.protocol !== "wss:"
+  ) {
     throw new Error("Connection URL must start with http(s):// or ws(s)://.");
   }
   url.pathname = "";
@@ -33,7 +39,9 @@ export function normalizeBaseUrl(value: string, protocol: "http" | "ws"): string
   return url.toString().replace(/\/$/, "");
 }
 
-export async function fetchEnvironmentDescriptor(httpBaseUrl: string): Promise<ExecutionEnvironmentDescriptor> {
+export async function fetchEnvironmentDescriptor(
+  httpBaseUrl: string,
+): Promise<ExecutionEnvironmentDescriptor> {
   const endpoint = new URL("/.well-known/t3/environment", `${httpBaseUrl}/`).toString();
   const response = await fetch(endpoint);
   if (!response.ok) {

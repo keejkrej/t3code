@@ -2,7 +2,7 @@
   "name": "@t3tools/mobile",
   "version": "0.0.1",
   "private": true,
-  "main": "expo/AppEntry",
+  "main": "index.ts",
   "scripts": {
     "dev": "expo start --ios",
     "build": "expo export --platform ios --output-dir dist",
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@types/react": "^19.1.10",
+    "babel-preset-expo": "~54.0.10",
     "typescript": "catalog:"
   }
 }

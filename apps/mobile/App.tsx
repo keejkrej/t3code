@@ -20,8 +20,12 @@ import {
   type MobileConnectionRecord,
 } from "./src/connections";
 
-function sortConnections(connections: ReadonlyArray<MobileConnectionRecord>): Array<MobileConnectionRecord> {
-  return [...connections].toSorted((left, right) => left.environment.label.localeCompare(right.environment.label));
+function sortConnections(
+  connections: ReadonlyArray<MobileConnectionRecord>,
+): Array<MobileConnectionRecord> {
+  return [...connections].toSorted((left, right) =>
+    left.environment.label.localeCompare(right.environment.label),
+  );
 }
 
 export default function App() {
@@ -78,9 +82,9 @@ export default function App() {
       });
 
       await persistConnections(
-        connections.filter(
-          (connection) => connection.environment.id !== nextRecord.environment.id,
-        ).concat(nextRecord),
+        connections
+          .filter((connection) => connection.environment.id !== nextRecord.environment.id)
+          .concat(nextRecord),
       );
 
       setLabel("");
@@ -116,7 +120,8 @@ export default function App() {
       <View style={styles.container}>
         <Text style={styles.title}>T3 Code for iPad</Text>
         <Text style={styles.subtitle}>
-          Add remote T3 Code backends running on your computers. No local server is started on mobile.
+          Add remote T3 Code backends running on your computers. No local server is started on
+          mobile.
         </Text>
 
         <View style={styles.form}>
@@ -144,7 +149,11 @@ export default function App() {
             autoCapitalize="none"
           />
           <Pressable onPress={onSave} style={styles.primaryButton} disabled={saving}>
-            {saving ? <ActivityIndicator color="#020617" /> : <Text style={styles.primaryButtonText}>Validate and Save</Text>}
+            {saving ? (
+              <ActivityIndicator color="#020617" />
+            ) : (
+              <Text style={styles.primaryButtonText}>Validate and Save</Text>
+            )}
           </Pressable>
         </View>
 
@@ -172,7 +181,9 @@ export default function App() {
                 <Text style={styles.cardBody}>WS: {item.environment.target.wsBaseUrl}</Text>
               </View>
             )}
-            ListEmptyComponent={<Text style={styles.emptyText}>No remote connections saved yet.</Text>}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No remote connections saved yet.</Text>
+            }
           />
         )}
       </View>
