@@ -10,8 +10,8 @@
     "start": "expo start",
     "start:clear": "expo start --clear",
     "start:dev-client": "expo start --dev-client --clear",
-    "ios": "expo run:ios",
-    "ios:dev-client": "expo run:ios",
+    "ios": "node scripts/run-ios-ipad.mjs",
+    "ios:dev-client": "node scripts/run-ios-ipad.mjs",
     "typecheck": "tsc --noEmit",
     "android": "expo run:android"
   },
