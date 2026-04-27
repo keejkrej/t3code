@@ -21,6 +21,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
+*.xcworkspace/
 .xcode.env.local
 
 # Bundle artifacts
@@ -28,3 +29,7 @@ project.xcworkspace
 
 # CocoaPods
 /Pods/
+/Podfile.lock
+
+# Expo prebuild output
+/T3Code/PrivacyInfo.xcprivacy
