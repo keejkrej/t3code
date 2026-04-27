@@ -9,7 +9,14 @@
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": true,
-      "bundleIdentifier": "tools.t3.code"
+      "bundleIdentifier": "tools.t3.code",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSAllowsLocalNetworking": true
+        },
+        "NSLocalNetworkUsageDescription": "T3 Code connects to development servers on your local network."
+      }
     },
     "android": {
       "package": "tools.t3.code"
