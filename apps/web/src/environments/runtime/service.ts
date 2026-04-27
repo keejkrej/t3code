@@ -66,6 +66,7 @@ import {
   derivePhysicalProjectKey,
 } from "../../logicalProject";
 import { getClientSettings } from "~/hooks/useSettings";
+import { isMobileShell } from "../../mobileShell";
 
 type EnvironmentServiceState = {
   readonly queryClient: QueryClient;
@@ -1032,6 +1033,10 @@ export function requireEnvironmentConnection(environmentId: EnvironmentId): Envi
 }
 
 export function getPrimaryEnvironmentConnection(): EnvironmentConnection {
+  if (isMobileShell()) {
+    throw new Error("Primary environment is unavailable in the mobile shell.");
+  }
+
   return createPrimaryEnvironmentConnection();
 }
 
@@ -1170,7 +1175,9 @@ export function startEnvironmentConnectionService(queryClient: QueryClient): () 
     },
   );
 
-  createPrimaryEnvironmentConnection();
+  if (!isMobileShell()) {
+    createPrimaryEnvironmentConnection();
+  }
 
   const unsubscribeSavedEnvironments = useSavedEnvironmentRegistryStore.subscribe(() => {
     if (!hasSavedEnvironmentRegistryHydrated()) {

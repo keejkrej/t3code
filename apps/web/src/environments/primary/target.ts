@@ -1,6 +1,8 @@
 import type { DesktopEnvironmentBootstrap } from "@t3tools/contracts";
 import type { KnownEnvironment } from "@t3tools/client-runtime";
 
+import { isMobileShell } from "../../mobileShell";
+
 export interface PrimaryEnvironmentTarget {
   readonly source: KnownEnvironment["source"];
   readonly target: KnownEnvironment["target"];
@@ -150,6 +152,10 @@ export function resolvePrimaryEnvironmentHttpUrl(
 }
 
 export function readPrimaryEnvironmentTarget(): PrimaryEnvironmentTarget | null {
+  if (isMobileShell()) {
+    return null;
+  }
+
   return (
     resolveDesktopPrimaryTarget() ??
     resolveConfiguredPrimaryTarget() ??

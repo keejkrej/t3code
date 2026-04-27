@@ -67,6 +67,7 @@ import {
   reconnectSavedEnvironment,
   removeSavedEnvironment,
 } from "~/environments/runtime";
+import { isMobileShell } from "~/mobileShell";
 
 const accessTimestampFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -757,6 +758,7 @@ function SavedBackendListRow({
 
 export function ConnectionsSettings() {
   const desktopBridge = window.desktopBridge;
+  const mobileShell = isMobileShell();
   const [currentSessionRole, setCurrentSessionRole] = useState<"owner" | "client" | null>(
     desktopBridge ? "owner" : null,
   );
@@ -1004,6 +1006,12 @@ export function ConnectionsSettings() {
   }, []);
 
   useEffect(() => {
+    if (mobileShell) {
+      setCurrentSessionRole(null);
+      setCurrentAuthPolicy(null);
+      return;
+    }
+
     if (desktopBridge) {
       setCurrentSessionRole("owner");
       return;
@@ -1025,7 +1033,7 @@ export function ConnectionsSettings() {
     return () => {
       cancelled = true;
     };
-  }, [desktopBridge]);
+  }, [desktopBridge, mobileShell]);
 
   useEffect(() => {
     if (!canManageLocalBackend) return;

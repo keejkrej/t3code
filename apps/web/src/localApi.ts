@@ -23,6 +23,7 @@ import {
   writeBrowserSavedEnvironmentRegistry,
   writeBrowserSavedEnvironmentSecret,
 } from "./clientPersistenceStorage";
+import { createMobileLocalApi } from "./mobileShell";
 
 let cachedApi: LocalApi | undefined;
 
@@ -125,6 +126,12 @@ export function readLocalApi(): LocalApi | undefined {
 
   if (window.nativeApi) {
     cachedApi = window.nativeApi;
+    return cachedApi;
+  }
+
+  const mobileApi = createMobileLocalApi();
+  if (mobileApi) {
+    cachedApi = mobileApi;
     return cachedApi;
   }
 

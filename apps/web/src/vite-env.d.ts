@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 import type { DesktopBridge, LocalApi } from "@t3tools/contracts";
+import type { T3MobileBridge } from "./mobileShell";
 
 interface ImportMetaEnv {
   readonly APP_VERSION: string;
@@ -14,5 +15,6 @@ declare global {
   interface Window {
     nativeApi?: LocalApi;
     desktopBridge?: DesktopBridge;
+    t3MobileBridge?: T3MobileBridge;
   }
 }

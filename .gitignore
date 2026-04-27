@@ -16,6 +16,7 @@ release-mock/
 .t3
 .idea/
 apps/web/.playwright
+apps/*/.expo
 apps/web/playwright-report
 apps/web/src/components/__screenshots__
 .vitest-*

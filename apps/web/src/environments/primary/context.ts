@@ -9,6 +9,7 @@ import { create } from "zustand";
 import { BootstrapHttpError, retryTransientBootstrap } from "./auth";
 
 import { readPrimaryEnvironmentTarget, resolvePrimaryEnvironmentHttpUrl } from "./target";
+import { isMobileShell } from "../../mobileShell";
 
 const SERVER_ENVIRONMENT_DESCRIPTOR_PATH = "/.well-known/t3/environment";
 
@@ -91,6 +92,10 @@ export function getPrimaryKnownEnvironment(): KnownEnvironment | null {
 }
 
 export function resolveInitialPrimaryEnvironmentDescriptor(): Promise<ExecutionEnvironmentDescriptor> {
+  if (isMobileShell()) {
+    return Promise.reject(new Error("Primary environment is unavailable in the mobile shell."));
+  }
+
   const descriptor = readPrimaryEnvironmentDescriptor();
   if (descriptor) {
     return Promise.resolve(descriptor);

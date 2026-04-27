@@ -14,6 +14,7 @@ import {
   getPairingTokenFromUrl,
   stripPairingTokenFromUrl as stripPairingTokenUrl,
 } from "../../pairingUrl";
+import { isMobileShell } from "../../mobileShell";
 
 import { resolvePrimaryEnvironmentHttpUrl } from "./target";
 import { Data, Predicate } from "effect";
@@ -343,6 +344,10 @@ export async function revokeOtherServerClientSessions(): Promise<number> {
 }
 
 export async function resolveInitialServerAuthGateState(): Promise<ServerAuthGateState> {
+  if (isMobileShell()) {
+    return { status: "authenticated" };
+  }
+
   if (resolvedAuthenticatedGateState?.status === "authenticated") {
     return resolvedAuthenticatedGateState;
   }

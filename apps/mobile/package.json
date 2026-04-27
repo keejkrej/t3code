@@ -1,0 +1,35 @@
+{
+  "name": "@t3tools/mobile",
+  "version": "0.0.0-alpha.1",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "prepare:web": "T3CODE_WEB_BASE=./ T3CODE_WEB_SOURCEMAP=0 bun --cwd ../web build && node scripts/sync-web-dist.mjs",
+    "sync-web": "node scripts/sync-web-dist.mjs",
+    "start": "expo start",
+    "start:clear": "expo start --clear",
+    "start:dev-client": "expo start --dev-client --clear",
+    "ios": "expo run:ios",
+    "ios:dev-client": "expo run:ios",
+    "typecheck": "tsc --noEmit",
+    "android": "expo run:android"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "expo": "^54.0.0",
+    "expo-dev-client": "~6.0.20",
+    "expo-file-system": "~19.0.0",
+    "expo-linking": "~8.0.0",
+    "expo-screen-orientation": "~9.0.0",
+    "expo-secure-store": "~15.0.0",
+    "react": "^19.0.0",
+    "react-native": "^0.81.0",
+    "react-native-webview": "^13.16.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "babel-preset-expo": "^54.0.10",
+    "typescript": "catalog:"
+  }
+}

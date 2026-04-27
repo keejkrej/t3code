@@ -54,15 +54,17 @@ import {
   resolveInitialServerAuthGateState,
   updatePrimaryEnvironmentDescriptor,
 } from "../environments/primary";
+import { isMobileShell } from "../mobileShell";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
 }>()({
   beforeLoad: async () => {
-    const [, authGateState] = await Promise.all([
-      ensurePrimaryEnvironmentReady(),
-      resolveInitialServerAuthGateState(),
-    ]);
+    const authGateState = isMobileShell()
+      ? await resolveInitialServerAuthGateState()
+      : (
+          await Promise.all([ensurePrimaryEnvironmentReady(), resolveInitialServerAuthGateState()])
+        )[1];
     return {
       authGateState,
     };
@@ -94,16 +96,17 @@ function RootRouteView() {
   if (authGateState.status !== "authenticated") {
     return <Outlet />;
   }
+  const mobileShell = isMobileShell();
   return (
     <ToastProvider>
       <AnchoredToastProvider>
-        <AuthenticatedTracingBootstrap />
-        <ServerStateBootstrap />
+        {!mobileShell && <AuthenticatedTracingBootstrap />}
+        {!mobileShell && <ServerStateBootstrap />}
         <EnvironmentConnectionManagerBootstrap />
         <EventRouter />
-        <WebSocketConnectionCoordinator />
+        {!mobileShell && <WebSocketConnectionCoordinator />}
         <SlowRpcAckToastCoordinator />
-        <WebSocketConnectionSurface>
+        <WebSocketConnectionSurface disabled={mobileShell}>
           <CommandPalette>
             <AppSidebarLayout>
               <Outlet />

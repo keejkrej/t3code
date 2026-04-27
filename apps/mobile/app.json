@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "T3 Code",
+    "slug": "t3-code",
+    "version": "0.0.0",
+    "orientation": "landscape",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "requireFullScreen": true,
+      "bundleIdentifier": "tools.t3.code"
+    },
+    "assetBundlePatterns": ["assets/**/*"],
+    "plugins": [["expo-screen-orientation", { "initialOrientation": "LANDSCAPE" }]]
+  }
+}

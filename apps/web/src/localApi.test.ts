@@ -128,12 +128,14 @@ function emitEvent<T>(listeners: Set<(event: T) => void>, event: T) {
   }
 }
 
-function getWindowForTest(): Window & typeof globalThis & { desktopBridge?: unknown } {
+function getWindowForTest(): Window &
+  typeof globalThis & { desktopBridge?: unknown; t3MobileBridge?: unknown } {
   const testGlobal = globalThis as typeof globalThis & {
-    window?: Window & typeof globalThis & { desktopBridge?: unknown };
+    window?: Window & typeof globalThis & { desktopBridge?: unknown; t3MobileBridge?: unknown };
   };
   if (!testGlobal.window) {
-    testGlobal.window = {} as Window & typeof globalThis & { desktopBridge?: unknown };
+    testGlobal.window = {} as Window &
+      typeof globalThis & { desktopBridge?: unknown; t3MobileBridge?: unknown };
   }
   return testGlobal.window;
 }
@@ -278,6 +280,7 @@ beforeEach(() => {
   gitStatusListeners.clear();
   const testWindow = getWindowForTest();
   Reflect.deleteProperty(testWindow, "desktopBridge");
+  Reflect.deleteProperty(testWindow, "t3MobileBridge");
   Object.defineProperty(testWindow, "localStorage", {
     configurable: true,
     value: createLocalStorageStub(),
@@ -582,6 +585,64 @@ describe("wsApi", () => {
     expect(getSavedEnvironmentSecret).toHaveBeenCalledWith("environment-local");
     expect(setSavedEnvironmentSecret).toHaveBeenCalledWith("environment-local", "bearer-token");
     expect(removeSavedEnvironmentSecret).toHaveBeenCalledWith("environment-local");
+  });
+
+  it("uses the mobile bridge for shell-level persistence without a primary connection", async () => {
+    const request = vi.fn(async (method: string, _input: unknown) => {
+      switch (method) {
+        case "persistence.getClientSettings":
+          return null;
+        case "persistence.getSavedEnvironmentRegistry":
+          return [];
+        case "persistence.getSavedEnvironmentSecret":
+          return "bearer-token";
+        case "persistence.setSavedEnvironmentSecret":
+        case "shell.openExternal":
+          return true;
+        default:
+          return null;
+      }
+    });
+    getWindowForTest().t3MobileBridge = { request };
+
+    const { readLocalApi } = await import("./localApi");
+    const api = readLocalApi();
+
+    expect(api).toBeDefined();
+    if (!api) {
+      throw new Error("Expected mobile LocalApi.");
+    }
+
+    await expect(api.dialogs.pickFolder()).resolves.toBeNull();
+    await api.persistence.getClientSettings();
+    await api.persistence.setSavedEnvironmentRegistry([]);
+    await expect(
+      api.persistence.getSavedEnvironmentSecret(EnvironmentId.make("environment-local")),
+    ).resolves.toBe("bearer-token");
+    await expect(
+      api.persistence.setSavedEnvironmentSecret(
+        EnvironmentId.make("environment-local"),
+        "bearer-token",
+      ),
+    ).resolves.toBe(true);
+    await api.shell.openExternal("https://example.com");
+    await expect(api.shell.openInEditor("/tmp/project", "cursor")).rejects.toThrow(
+      "Opening files in an editor is unavailable in the mobile shell.",
+    );
+
+    expect(request).toHaveBeenCalledWith("persistence.getClientSettings", undefined);
+    expect(request).toHaveBeenCalledWith("persistence.setSavedEnvironmentRegistry", {
+      records: [],
+    });
+    expect(request).toHaveBeenCalledWith("persistence.getSavedEnvironmentSecret", {
+      environmentId: "environment-local",
+    });
+    expect(request).toHaveBeenCalledWith("persistence.setSavedEnvironmentSecret", {
+      environmentId: "environment-local",
+      secret: "bearer-token",
+    });
+    expect(request).toHaveBeenCalledWith("shell.openExternal", { url: "https://example.com" });
+    expect(rpcClientMock.server.getConfig).not.toHaveBeenCalled();
   });
 
   it("falls back to browser storage for persistence when the desktop bridge is missing", async () => {
