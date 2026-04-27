@@ -8,7 +8,7 @@ import {
   type ProjectId,
 } from "@t3tools/contracts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useLocation, useNavigate, useParams } from "@tanstack/react-router";
 import {
   ArrowDownIcon,
   ArrowLeftIcon,
@@ -70,6 +70,7 @@ import {
 } from "../store";
 import { selectThreadTerminalState, useTerminalStateStore } from "../terminalStateStore";
 import { buildThreadRouteParams, resolveThreadRouteTarget } from "../threadRoutes";
+import { settingsSearchForLocation } from "../settingsNavigation";
 import {
   ADDON_ICON_CLASS,
   buildBrowseGroups,
@@ -204,6 +205,7 @@ function CommandPaletteDialog() {
 
 function OpenCommandPaletteDialog() {
   const navigate = useNavigate();
+  const location = useLocation();
   const setOpen = useCommandPaletteStore((store) => store.setOpen);
   const openIntent = useCommandPaletteStore((store) => store.openIntent);
   const clearOpenIntent = useCommandPaletteStore((store) => store.clearOpenIntent);
@@ -704,7 +706,7 @@ function OpenCommandPaletteDialog() {
     title: "Open settings",
     icon: <SettingsIcon className={ITEM_ICON_CLASS} />,
     run: async () => {
-      await navigate({ to: "/settings" });
+      await navigate({ to: "/settings", search: settingsSearchForLocation(location) });
     },
   });
 

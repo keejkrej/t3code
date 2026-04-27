@@ -13,7 +13,7 @@
     "ios": "node scripts/run-ios-ipad.mjs",
     "ios:dev-client": "node scripts/run-ios-ipad.mjs",
     "typecheck": "tsc --noEmit",
-    "android": "expo run:android"
+    "android": "node scripts/run-android.mjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
@@ -23,8 +23,9 @@
     "expo-linking": "~8.0.0",
     "expo-screen-orientation": "~9.0.0",
     "expo-secure-store": "~15.0.0",
-    "react": "^19.0.0",
+    "react": "19.1.4",
     "react-native": "^0.81.0",
+    "react-native-safe-area-context": "~5.6.0",
     "react-native-webview": "^13.16.0"
   },
   "devDependencies": {

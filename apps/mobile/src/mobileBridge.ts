@@ -4,7 +4,7 @@ import * as SecureStore from "expo-secure-store";
 
 const CLIENT_SETTINGS_KEY = "t3.clientSettings";
 const SAVED_ENVIRONMENT_REGISTRY_KEY = "t3.savedEnvironmentRegistry";
-const SAVED_ENVIRONMENT_SECRET_PREFIX = "t3.savedEnvironmentSecret:";
+const SAVED_ENVIRONMENT_SECRET_PREFIX = "t3.savedEnvironmentSecret.";
 
 type BridgeRequest = {
   readonly id: string;
@@ -44,8 +44,16 @@ function stringifyForInjection(value: unknown): string {
   return JSON.stringify(value).replace(/<\/script/gi, "<\\/script");
 }
 
+function encodeSecureStoreKeySegment(value: string): string {
+  return (
+    Array.from(value, (character) => character.codePointAt(0)?.toString(36) ?? "")
+      .filter(Boolean)
+      .join("_") || "empty"
+  );
+}
+
 function secretKey(environmentId: string): string {
-  return `${SAVED_ENVIRONMENT_SECRET_PREFIX}${environmentId}`;
+  return `${SAVED_ENVIRONMENT_SECRET_PREFIX}${encodeSecureStoreKeySegment(environmentId)}`;
 }
 
 function objectInput(input: unknown): Record<string, unknown> {
@@ -137,7 +145,8 @@ async function readSecretEnvironmentIds(): Promise<Set<string>> {
 async function writeSecretEnvironmentIds(environmentIds: Set<string>): Promise<void> {
   await AsyncStorage.setItem(
     SECRET_ENVIRONMENT_IDS_KEY,
-    JSON.stringify([...environmentIds].toSorted()),
+    // oxlint-disable-next-line unicorn/no-array-sort
+    JSON.stringify([...environmentIds].sort()),
   );
 }
 

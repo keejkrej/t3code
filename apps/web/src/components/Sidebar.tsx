@@ -168,6 +168,7 @@ import { CommandDialogTrigger } from "./ui/command";
 import { readEnvironmentApi } from "../environmentApi";
 import { useSettings, useUpdateSettings } from "~/hooks/useSettings";
 import { useServerKeybindings } from "../rpc/serverState";
+import { settingsSearchForLocation } from "../settingsNavigation";
 import {
   derivePhysicalProjectKey,
   deriveProjectGroupingOverrideKey,
@@ -2401,9 +2402,10 @@ const SidebarChromeHeader = memo(function SidebarChromeHeader({
 
 const SidebarChromeFooter = memo(function SidebarChromeFooter() {
   const navigate = useNavigate();
+  const location = useLocation();
   const handleSettingsClick = useCallback(() => {
-    void navigate({ to: "/settings" });
-  }, [navigate]);
+    void navigate({ to: "/settings", search: settingsSearchForLocation(location) });
+  }, [location, navigate]);
 
   return (
     <SidebarFooter className="p-2">

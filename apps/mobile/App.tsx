@@ -1,10 +1,21 @@
 import * as ScreenOrientation from "expo-screen-orientation";
-import { createElement, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import WebView, { type WebViewMessageEvent } from "react-native-webview";
 
 import { createInjectedMobileBridgeScript, handleMobileBridgeMessage } from "./src/mobileBridge";
 import { type BundledWebUiLocation, prepareBundledWebUi } from "./src/webBundle";
+
+const SAFE_AREA_EDGES = ["top", "right", "bottom", "left"] as const;
+
+function MobileShell({ children }: { readonly children: ReactNode }) {
+  return createElement(
+    SafeAreaProvider,
+    null,
+    createElement(SafeAreaView, { edges: SAFE_AREA_EDGES, style: styles.root }, children),
+  );
+}
 
 export default function App() {
   const webViewRef = useRef<WebView>(null);
@@ -43,20 +54,28 @@ export default function App() {
 
   if (loadError) {
     return createElement(
-      View,
-      { style: styles.centered },
-      createElement(Text, { style: styles.errorTitle }, "Unable to load T3 Code"),
-      createElement(Text, { style: styles.errorText }, loadError),
+      MobileShell,
+      null,
+      createElement(
+        View,
+        { style: styles.centered },
+        createElement(Text, { style: styles.errorTitle }, "Unable to load T3 Code"),
+        createElement(Text, { style: styles.errorText }, loadError),
+      ),
     );
   }
 
   if (!webLocation) {
-    return createElement(View, { style: styles.centered }, createElement(ActivityIndicator));
+    return createElement(
+      MobileShell,
+      null,
+      createElement(View, { style: styles.centered }, createElement(ActivityIndicator)),
+    );
   }
 
   return createElement(
-    View,
-    { style: styles.root },
+    MobileShell,
+    null,
     createElement(WebView, {
       ref: webViewRef,
       source: { uri: webLocation.indexUri },

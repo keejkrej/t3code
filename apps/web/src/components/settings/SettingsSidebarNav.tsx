@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import { ArchiveIcon, ArrowLeftIcon, Link2Icon, Settings2Icon } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 
 import {
   SidebarContent,
@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "../ui/sidebar";
+import { parseSettingsRouteSearch, resolveSettingsBackHref } from "../../settingsNavigation";
 
 export type SettingsSectionPath =
   | "/settings/general"
@@ -29,6 +30,10 @@ export const SETTINGS_NAV_ITEMS: ReadonlyArray<{
 
 export function SettingsSidebarNav({ pathname }: { pathname: string }) {
   const navigate = useNavigate();
+  const search = useSearch({ strict: false, select: parseSettingsRouteSearch });
+  const handleBackClick = () => {
+    void navigate({ href: resolveSettingsBackHref(search), replace: true });
+  };
 
   return (
     <>
@@ -48,7 +53,7 @@ export function SettingsSidebarNav({ pathname }: { pathname: string }) {
                         ? "gap-2.5 px-2.5 py-2 text-left text-[13px] font-medium text-foreground"
                         : "gap-2.5 px-2.5 py-2 text-left text-[13px] text-muted-foreground/70 hover:text-foreground/80"
                     }
-                    onClick={() => void navigate({ to: item.to, replace: true })}
+                    onClick={() => void navigate({ to: item.to, replace: true, search })}
                   >
                     <Icon
                       className={
@@ -73,7 +78,7 @@ export function SettingsSidebarNav({ pathname }: { pathname: string }) {
             <SidebarMenuButton
               size="sm"
               className="gap-2 px-2 py-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
-              onClick={() => window.history.back()}
+              onClick={handleBackClick}
             >
               <ArrowLeftIcon className="size-4" />
               <span>Back</span>

@@ -5,10 +5,14 @@
     "version": "0.0.0",
     "orientation": "landscape",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": true,
       "bundleIdentifier": "tools.t3.code"
+    },
+    "android": {
+      "package": "tools.t3.code"
     },
     "assetBundlePatterns": ["assets/**/*"],
     "plugins": [["expo-screen-orientation", { "initialOrientation": "LANDSCAPE" }]]

@@ -1,3 +1,4 @@
+import "./polyfills";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
@@ -10,9 +11,10 @@ import { isElectron } from "./env";
 import { getRouter } from "./router";
 import { APP_DISPLAY_NAME } from "./branding";
 import { syncDocumentWindowControlsOverlayClass } from "./lib/windowControlsOverlay";
+import { isMobileShell } from "./mobileShell";
 
-// Electron loads the app from a file-backed shell, so hash history avoids path resolution issues.
-const history = isElectron ? createHashHistory() : createBrowserHistory();
+// File-backed shells need hash history so the router ignores the local asset pathname.
+const history = isElectron || isMobileShell() ? createHashHistory() : createBrowserHistory();
 
 const router = getRouter(history);
 
