@@ -61,7 +61,9 @@ function runChecked(command: string, args: ReadonlyArray<string>): void {
 const serverBin = NodePath.join(repoRoot, "apps", "server", "dist", "bin.mjs");
 const desktopDir = NodePath.join(repoRoot, "apps", "desktop");
 const electronMain = NodePath.join(desktopDir, "dist-electron", "main.cjs");
-const iconPng = NodePath.join(desktopDir, "resources", "icon.png");
+// Use the production (black) icon, not the nightly/blueprint icon that is
+// currently committed in apps/desktop/resources/icon.png.
+const iconPng = NodePath.join(repoRoot, "assets", "prod", "black-universal-1024.png");
 const desktopAppId = "com.t3tools.t3code";
 
 interface InstallOptions {
@@ -165,9 +167,20 @@ function installLauncher(electronPath: string, options: InstallOptions): void {
     "t3code.desktop",
   );
 
+  const iconTarget = NodePath.join(
+    options.prefix,
+    "share",
+    "icons",
+    "hicolor",
+    "512x512",
+    "apps",
+    "t3code.png",
+  );
+
   if (options.uninstall) {
     rmIfExists(launcherTarget);
     rmIfExists(desktopEntryTarget);
+    rmIfExists(iconTarget);
     return;
   }
 
@@ -179,6 +192,26 @@ function installLauncher(electronPath: string, options: InstallOptions): void {
 
   ensureDir(binDir);
   ensureDir(NodePath.dirname(desktopEntryTarget));
+
+  // Install the icon into the hicolor icon theme so GNOME can discover it
+  // by name (more robust than an absolute path that may break if the repo
+  // moves).
+  if (exists(iconPng)) {
+    ensureDir(NodePath.dirname(iconTarget));
+    NodeFS.cpSync(iconPng, iconTarget, { force: true });
+    console.log(`  installed icon ${iconTarget}`);
+
+    // Ensure the hicolor theme index exists so icon caches work
+    const hicolorDir = NodePath.join(options.prefix, "share", "icons", "hicolor");
+    const themeIndexPath = NodePath.join(hicolorDir, "index.theme");
+    if (!exists(themeIndexPath)) {
+      ensureDir(hicolorDir);
+      NodeFS.writeFileSync(
+        themeIndexPath,
+        "[Icon Theme]\nName=hicolor\nComment=Freedesktop standard icon theme\nDirectories=512x512/apps\n\n[512x512/apps]\nSize=512\nContext=Applications\nType=Threshold\n",
+      );
+    }
+  }
 
   // Electron on Linux needs a sandbox helper with suid or --no-sandbox.
   // The launcher mirrors the logic from electron-launcher.mjs.
@@ -192,16 +225,20 @@ exec ${JSON.stringify(electronPath)} --no-sandbox ${JSON.stringify(electronMain)
   console.log(`  installed launcher ${launcherTarget}`);
 
   // .desktop entry
+  // StartupWMClass must match the actual WM_CLASS of the running Electron
+  // window. Electron derives WM_CLASS from app.setName(), which is the
+  // display name "T3 Code (Alpha)". The --class switch and setDesktopName
+  // do not reliably override it, so we match the display name here.
   const desktopEntry = `[Desktop Entry]
 Type=Application
 Name=T3 Code
 GenericName=Coding Agent GUI
 Comment=Minimal web GUI for coding agents
 Exec=${launcherTarget} %U
-Icon=${iconPng}
+Icon=t3code
 Terminal=false
 Categories=Development;Utility;
-StartupWMClass=t3code
+StartupWMClass=T3 Code (Alpha)
 MimeType=x-scheme-handler/t3code;
 `;
 
@@ -212,6 +249,17 @@ MimeType=x-scheme-handler/t3code;
   if (exists("/usr/bin/update-desktop-database")) {
     try {
       runChecked("update-desktop-database", [NodePath.dirname(desktopEntryTarget)]);
+    } catch {
+      // non-fatal
+    }
+  }
+
+  // Refresh icon cache so GNOME picks up the newly installed icon
+  if (exists("/usr/bin/gtk-update-icon-cache")) {
+    try {
+      runChecked("gtk-update-icon-cache", [
+        NodePath.join(options.prefix, "share", "icons", "hicolor"),
+      ]);
     } catch {
       // non-fatal
     }
