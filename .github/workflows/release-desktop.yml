@@ -509,7 +509,7 @@ jobs:
           patterns=(
             "release/*.dmg"
             "release/*.zip"
-            "release/*.AppImage"
+            "release/*.deb"
             "release/*.exe"
           )
           # Preview builds have no publish config, so electron-builder writes

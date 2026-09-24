@@ -587,7 +587,7 @@ it.layer(NodeServices.layer)("build-desktop-artifact", (it) => {
       );
       const linux = yield* createBuildConfig(
         "linux",
-        "AppImage",
+        "deb",
         "1.2.3",
         false,
         false,
@@ -673,6 +673,11 @@ it.layer(NodeServices.layer)("build-desktop-artifact", (it) => {
       assert.deepStrictEqual((linux.linux as Record<string, unknown>).protocols, [
         { name: "T3 Code", schemes: ["t3code", "t3code-dev"] },
       ]);
+      assert.deepStrictEqual((linux.linux as Record<string, unknown>).target, ["deb"]);
+      assert.equal(
+        (linux.linux as Record<string, unknown>).maintainer,
+        "T3 Tools <legal@t3.tools>",
+      );
       assert.deepStrictEqual(mac.files, [...DESKTOP_FILE_EXCLUSIONS, ...MAC_FILE_EXCLUSIONS]);
       assert.deepStrictEqual(linux.files, [...DESKTOP_FILE_EXCLUSIONS, ...LINUX_FILE_EXCLUSIONS]);
       assert.deepStrictEqual(win.files, DESKTOP_FILE_EXCLUSIONS);

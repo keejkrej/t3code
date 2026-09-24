@@ -11,15 +11,15 @@ import * as ElectronProtocol from "../electron/ElectronProtocol.ts";
 import * as DesktopEnvironment from "./DesktopEnvironment.ts";
 import { makeComponentLogger } from "./DesktopObservability.ts";
 
-// Linux ships as an AppImage, so the .desktop entry users end up with is
-// created by whatever integration tool they use (AppImageLauncher names it
-// appimagekit_<hash>-….desktop) and its filename is not under our control.
-// Electron's app.setAsDefaultProtocolClient resolves the desktop id from
-// setDesktopName, which cannot match those files — so the browser keeps
-// prompting "Choose an application" for every OAuth callback. Instead, write
-// our own handler entry pointing at the current AppImage and claim the
-// scheme default via xdg-mime, exactly what the file manager's "set as
-// default" checkbox would record in mimeapps.list.
+// The desktop entry a package manager or AppImage launcher installs is not a
+// filename Electron can pass to setDesktopName. AppImageLauncher names its
+// entry appimagekit_<hash>-….desktop, and a deb's system entry is owned by
+// the package. Electron's app.setAsDefaultProtocolClient therefore cannot
+// claim t3code://, and the browser keeps prompting "Choose an application"
+// for every OAuth callback. Write our own handler entry pointing at the
+// running executable (the AppImage path when one is set, otherwise
+// process.execPath) and claim the scheme default via xdg-mime, exactly what
+// the file manager's "set as default" checkbox would record in mimeapps.list.
 const { logInfo, logWarning } = makeComponentLogger("desktop-linux-url-handler");
 
 export class DesktopLinuxUrlHandlerRegistrationError extends Schema.TaggedError<DesktopLinuxUrlHandlerRegistrationError>()(

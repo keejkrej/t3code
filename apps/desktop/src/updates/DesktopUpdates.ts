@@ -247,8 +247,6 @@ function shouldBroadcastDownloadProgress(
 function getAutoUpdateDisabledReason(args: {
   isDevelopment: boolean;
   isPackaged: boolean;
-  platform: NodeJS.Platform;
-  appImage?: string | undefined;
   disabledByEnv: boolean;
   hasUpdateFeedConfig: boolean;
 }): string | null {
@@ -261,9 +259,9 @@ function getAutoUpdateDisabledReason(args: {
   if (args.disabledByEnv) {
     return "Automatic updates are disabled by the T3CODE_DISABLE_AUTO_UPDATE setting.";
   }
-  if (args.platform === "linux" && !args.appImage) {
-    return "Automatic updates on Linux require running the AppImage build.";
-  }
+  // Linux deb, rpm, and pacman builds write resources/package-type, and
+  // electron-updater selects that installer. AppImage builds have no such
+  // file and update through AppImageUpdater. Neither path depends on APPIMAGE.
   return null;
 }
 
@@ -341,8 +339,6 @@ export const make = Effect.gen(function* () {
       getAutoUpdateDisabledReason({
         isDevelopment: environment.isDevelopment,
         isPackaged: environment.isPackaged,
-        platform: environment.platform,
-        appImage: Option.getOrUndefined(config.appImagePath),
         disabledByEnv: config.disableAutoUpdate,
         hasUpdateFeedConfig: hasFeedConfig,
       }),

@@ -144,10 +144,12 @@ DMGs default to the host architecture. Use `--arch` to choose another target and
 to retain packaging files for inspection. Run `vp run dist:desktop:artifact --help` for other
 options.
 
-### Linux AppImage prerequisites
+### Linux deb prerequisites
 
-Build on Linux because the browser-secret helper links against the host's libsecret. Install
-Rust, C/C++ build tools, libsecret development headers, pkg-config, and ImageMagick.
+`vp run dist:desktop:linux` writes a `.deb` for the host architecture. Build on Linux because
+the browser-secret helper links against the host's libsecret. Install Rust, C/C++ build tools,
+libsecret development headers, pkg-config, and ImageMagick. electron-builder downloads its own
+`fpm` to assemble the package; Debian and Ubuntu already provide `dpkg` and `fakeroot`.
 
 Ubuntu and Debian:
 

@@ -43,12 +43,13 @@ however you run other Node processes.
 Download a release from [GitHub Releases](https://github.com/pingdotgg/t3code/releases),
 or use a package manager:
 
-| Platform           | Install                         |
-| ------------------ | ------------------------------- |
-| Windows            | `winget install T3Tools.T3Code` |
-| macOS              | `brew install --cask t3-code`   |
-| Arch Linux         | `yay -S t3code-bin`             |
-| Arch Linux nightly | `yay -S t3code-nightly-bin`     |
+| Platform           | Install                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| Windows            | `winget install T3Tools.T3Code`                                                          |
+| macOS              | `brew install --cask t3-code`                                                            |
+| Debian and Ubuntu  | Download the `.deb` from GitHub Releases and install it with `sudo apt install ./<file>.deb` |
+| Arch Linux         | `yay -S t3code-bin`                                                                      |
+| Arch Linux nightly | `yay -S t3code-nightly-bin`                                                              |
 
 ### Windows Subsystem for Linux
 

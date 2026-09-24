@@ -139,7 +139,7 @@ const PLATFORM_CONFIG: Record<typeof BuildPlatform.Type, PlatformConfig> = {
   },
   linux: {
     cliFlag: "--linux",
-    defaultTarget: "AppImage",
+    defaultTarget: "deb",
     archChoices: ["x64", "arm64"],
   },
   win: {
@@ -347,7 +347,7 @@ export class LinuxDesktopBuildPrerequisitesMissingError extends Schema.TaggedErr
         ? ["Add the requested Rust target with:", `  rustup target add ${this.rustTarget}`]
         : []),
       "",
-      "For other distributions, see docs/operations/development.md#linux-appimage-prerequisites.",
+      "For other distributions, see docs/operations/development.md#linux-deb-prerequisites.",
       "Then rerun `vp run dist:desktop:linux`.",
     ].join("\n");
   }
@@ -930,6 +930,9 @@ interface StagePackageJson {
   readonly packageManager: string;
   readonly description: string;
   readonly author: string;
+  // Required by electron-builder's deb packager (fpm), which refuses to build
+  // without a project homepage. Unused by the other platform targets.
+  readonly homepage?: string;
   readonly main: string;
   readonly build: Record<string, unknown>;
   readonly dependencies: Record<string, unknown>;
@@ -1482,7 +1485,7 @@ export function createStageWorkspaceConfig(input: {
   const { platform, arch, allowBuilds, patchedDependencies, overrides } = input;
   const hostOs = platform === "mac" ? "darwin" : platform === "win" ? "win32" : "linux";
   const hostCpu = arch === "universal" ? ["arm64", "x64"] : [arch];
-  // Linux AppImages execute a Linux/glibc Node process that loads
+  // Linux packages execute a Linux/glibc Node process that loads
   // Linux-native optional deps at runtime. Keep libc explicit so pnpm
   // includes those optional packages in the staged production install.
   const supportedArchitectures =
@@ -2737,6 +2740,8 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
       executableName: "t3code",
       icon: "icons",
       category: "Development",
+      // fpm requires a Name <email> maintainer for deb (and rpm) packages.
+      maintainer: "T3 Tools <legal@t3.tools>",
       // electron-builder turns these into MimeType=x-scheme-handler/<scheme>;
       // in the .desktop entry (Exec already gets %U), so browsers can hand
       // t3code:// OAuth callbacks to the app.
@@ -3652,6 +3657,7 @@ const buildDesktopArtifact = Effect.fn("buildDesktopArtifact")(function* (
     packageManager: rootPackageJson.packageManager,
     description: "T3 Code desktop build",
     author: "T3 Tools",
+    ...(options.platform === "linux" ? { homepage: "https://t3.codes" } : {}),
     main: "apps/desktop/dist-electron/main.cjs",
     build: yield* createBuildConfig(
       options.platform,
@@ -3872,7 +3878,7 @@ const buildDesktopArtifactCli = Command.make("build-desktop-artifact", {
   ),
   target: Flag.string("target").pipe(
     Flag.withDescription(
-      "Artifact target, for example dmg/AppImage/nsis (env: T3CODE_DESKTOP_TARGET).",
+      "Artifact target, for example dmg/deb/nsis (env: T3CODE_DESKTOP_TARGET).",
     ),
     Flag.optional,
   ),
